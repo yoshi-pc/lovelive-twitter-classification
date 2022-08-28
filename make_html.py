@@ -20,9 +20,10 @@ for cont, group in content_dict.items():
         text_origin = single_tweet["text"].replace("\n", "<br />")
         temp_text.append(
             f"""
-            <span class=\"mt-2\"><a href=\"https://twitter.com/LoveLive_staff/status/{single_tweet['id']}/\">original tweet</a></span><br />
+            <span class=\"mt-2 mb-2\"><a href=\"https://twitter.com/LoveLive_staff/status/{single_tweet['id']}/\" class="btn btn-primary">original tweet</a></span><br />
             <p class=\"pt-1\">{text_origin}</p>
-            {img_link}
+            {img_link}<br />
+            <span class="badge rounded-pill bg-secondary">{single_tweet['time']}</span>
             """
         )
     page_data[cont] = temp_text
