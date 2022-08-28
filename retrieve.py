@@ -4,9 +4,12 @@ import unicodedata
 import joblib
 from pytz import timezone
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-# set the token in your environment variable.
-BAERER = os.environ["twitter_baerer"]
+BAERER = os.environ.get("twitter_baerer")
+if BAERER is None:
+    raise ValueError("set the baerer token in your environment variable.")
 
 auth = tweepy.OAuth2BearerHandler(BAERER)
 api = tweepy.API(auth, wait_on_rate_limit = True)
