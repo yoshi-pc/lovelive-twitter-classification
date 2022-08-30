@@ -7,21 +7,13 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-BAERER = os.environ.get("twitter_baerer")
-if BAERER is None:
+BEARER = os.environ.get("twitter_bearer")
+if BEARER is None:
     raise ValueError("set the baerer token in your environment variable.")
 
-auth = tweepy.OAuth2BearerHandler(BAERER)
+auth = tweepy.OAuth2BearerHandler(BEARER)
 api = tweepy.API(auth, wait_on_rate_limit = True)
 tweets = api.user_timeline(screen_name = "LoveLive_staff", count = 30, trim_user = True, tweet_mode = "extended", include_rts = False)
-
-tweet_ids = dict(
-    mus = [],
-    aqours = [],
-    nijigaku = [],
-    liella = [],
-    others = []
-)
 
 tweet_contents = dict(
     mus = [],
@@ -47,7 +39,7 @@ for item in tweets:
         try:
             img_urls = [single["media_url_https"] for single in item.extended_entities["media"]]
         except AttributeError as e:
-            img_url = []
+            img_urls = []
         if re.search(v, text) is not None:
             tweet_contents[k].append(dict(
                 id = item.id_str,
