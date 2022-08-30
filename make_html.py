@@ -15,8 +15,15 @@ content_dict = dict(
 for cont, group in content_dict.items():
     temp_text = []
     for single_tweet in tweet_contents[group]:
-        img_class = "p-2 col-md-3"
-        img_link = "".join(["<img src=\"" + item + f"\" class=\"{img_class}\" />" for item in single_tweet["images"]])
+        img_class = "p-2 align-self-center mx-auto d-block col-md-"
+        len_imgs = len(single_tweet["images"])
+        if len_imgs == 0:
+            img_link = ""
+        elif len_imgs == 1:
+            img_class += "6"
+        else:
+            img_class += str(12 // len_imgs)
+        img_link = "<div class=\"row\">" + "".join(["<img src=\"" + item + f"\" class=\"{img_class} border\" />" for item in single_tweet["images"]]) + "</div>"
         text_origin = single_tweet["text"].replace("\n", "<br />")
         temp_text.append(
             f"""
