@@ -11,17 +11,33 @@ BEARER = os.environ.get("twitter_bearer")
 if BEARER is None:
     raise ValueError("set the baerer token in your environment variable.")
 
+saved_path = "./tweet_contents.jblb"
+if os.path.isfile(saved_path):
+    tweet_contents = joblib.load(saved_path)
+else:
+    tweet_contents = dict(
+        mus = [],
+        aqours = [],
+        nijigaku = [],
+        liella = [],
+        others = [],
+        latest_id = ""
+    )
+
 auth = tweepy.OAuth2BearerHandler(BEARER)
 api = tweepy.API(auth, wait_on_rate_limit = True)
-tweets = api.user_timeline(screen_name = "LoveLive_staff", count = 30, trim_user = True, tweet_mode = "extended", include_rts = False)
+user_timeline_args = {
+    "screen_name": "LoveLive_staff",
+    "trim_user": True,
+    "tweet_mode": "extended",
+    "include_rts": False
+}
 
-tweet_contents = dict(
-    mus = [],
-    aqours = [],
-    nijigaku = [],
-    liella = [],
-    others = []
-)
+if tweet_contents["latest_id"] == "":
+    user_timeline_args["count"] = 50
+else:
+    user_timeline_args["since_id"] = tweet_contents["latest_id"]
+tweets = api.user_timeline(**user_timeline_args)
 
 search_pat = dict(
     mus = r"(μ\'s|音ノ木坂)",
@@ -30,9 +46,12 @@ search_pat = dict(
     liella = r"(Liella|結ヶ丘|結女|スーパースター)"
 )
 
-pass
+if len(tweets) == 0:
+    pass
+else:
+    tweet_contents["latest_id"] = tweets[0].id_str
 
-for item in tweets:
+for item in list(reversed(tweets)):
     text = unicodedata.normalize("NFKC", item.full_text)
     hit = 0
     for k, v in search_pat.items():
@@ -41,7 +60,7 @@ for item in tweets:
         except AttributeError as e:
             img_urls = []
         if re.search(v, text) is not None:
-            tweet_contents[k].append(dict(
+            tweet_contents[k].insert(0, dict(
                 id = item.id_str,
                 text = item.full_text,
                 images = img_urls,
@@ -49,11 +68,18 @@ for item in tweets:
             ))
             hit += 1
     if hit == 0:
-        tweet_contents["others"].append(dict(
+        tweet_contents["others"].insert(0, dict(
             id = item.id_str,
             text = item.full_text,
             images = img_urls,
             time = item.created_at.astimezone(timezone('Asia/Tokyo')).strftime(r"%Y/%m/%d %H:%M:%S")
         ))
 
-joblib.dump(tweet_contents, "./tweet_contents.jblb", compress = 3)
+result_contents = {}
+for k, v in tweet_contents.items():
+    if type(v) is not list:
+        result_contents[k] = v
+        continue
+    result_contents[k] = v[:50]
+
+joblib.dump(result_contents, saved_path, compress = 3)
