@@ -42,7 +42,7 @@ tweets = api.user_timeline(**user_timeline_args)
 search_pat = dict(
     mus = r"(μ\'s|音ノ木坂)",
     aqours = r"(Aqours|サンシャイン|浦の星|浦女)",
-    nijigaku = r"(ニジガク|虹ヶ咲|同好会)",
+    nijigaku = r"(ニジガク|虹ヶ咲|同好会|虹)",
     liella = r"(Liella|結ヶ丘|結女|スーパースター)"
 )
 
